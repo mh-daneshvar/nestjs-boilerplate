@@ -2,7 +2,7 @@ import * as amqplib from 'amqplib';
 import Exchanges from './constants/exchanges';
 import Queues from './constants/queues';
 import { ConfigService } from '@nestjs/config';
-import MessageBrokerInterface from '../../MessageBroker.interface';
+import MessageBrokerInterface from '../../messageBroker.interface';
 import QueueInterface from './queue.interface';
 import ExchangeInterface from './exchange.interface';
 
@@ -78,15 +78,10 @@ export default class RabbitmqService implements MessageBrokerInterface {
     messageContent: string,
   ) {
     const channel = await this.connection.createChannel();
-    channel.publish(
-      exchangeName + '12',
-      routingKey,
-      Buffer.from(messageContent),
-      {
-        contentType: 'application/json',
-        persistent: true,
-      },
-    );
+    channel.publish(exchangeName, routingKey, Buffer.from(messageContent), {
+      contentType: 'application/json',
+      persistent: true,
+    });
     await channel.close();
   }
 }
