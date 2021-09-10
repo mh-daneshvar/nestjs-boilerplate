@@ -11,6 +11,32 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@common/my-library": [
+        "libs/my-library/src"
+      ],
+      "@common/my-library/*": [
+        "libs/my-library/src/*"
+      ],
+      "@common/rabbitmq": [
+        "libs/rabbitmq/src"
+      ],
+      "@common/rabbitmq/*": [
+        "libs/rabbitmq/src/*"
+      ],
+      "@common/filters": [
+        "libs/filters/src"
+      ],
+      "@common/filters/*": [
+        "libs/filters/src/*"
+      ],
+      "@common/interceptors": [
+        "libs/interceptors/src"
+      ],
+      "@common/interceptors/*": [
+        "libs/interceptors/src/*"
+      ]
+    }
   }
 }

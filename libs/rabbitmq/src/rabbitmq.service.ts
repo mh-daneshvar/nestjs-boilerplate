@@ -1,12 +1,14 @@
 import * as amqplib from 'amqplib';
 import Exchanges from './constants/exchanges';
 import Queues from './constants/queues';
-import { ConfigService } from '@nestjs/config';
-import MessageBrokerInterface from '../../messageBroker.interface';
+// import { ConfigService } from '@nestjs/config';
+import MessageBrokerInterface from './messageBroker.interface';
 import QueueInterface from './queue.interface';
 import ExchangeInterface from './exchange.interface';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 
-export default class RabbitmqService implements MessageBrokerInterface {
+@Injectable()
+export class RabbitmqService implements MessageBrokerInterface, OnModuleInit {
   private connection: amqplib.Connection;
   private readonly rabbitAddress: string;
   private readonly exchanges: ExchangeInterface[];
@@ -16,14 +18,20 @@ export default class RabbitmqService implements MessageBrokerInterface {
    * Constructor
    *
    */
-  constructor(configService: ConfigService) {
-    this.rabbitAddress = configService.get<string>('RABBITMQ_SERVER_ADDRESS');
+  // constructor(configService: ConfigService) {
+  constructor() {
+    // this.rabbitAddress = configService.get<string>('RABBITMQ_SERVER_ADDRESS');
+    this.rabbitAddress = 'amqp://admin:admin@localhost:5672/sigma';
     this.exchanges = Object.getOwnPropertyNames(Exchanges).map(
       (exchange) => Exchanges[exchange],
     );
     this.queues = Object.getOwnPropertyNames(Queues).map(
       (queue) => Queues[queue],
     );
+  }
+
+  async onModuleInit() {
+    await this.setup();
   }
 
   /**
