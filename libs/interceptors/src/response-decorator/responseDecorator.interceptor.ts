@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Request } from 'express';
 import { ControllerResponse, Links, Response } from './responses.interface';
-import { configService } from '../../config.service';
+import { configService } from '../../../../apps/main/src/config.service';
 
 @Injectable()
 export class ResponseDecorator<T>
