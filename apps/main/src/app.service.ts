@@ -1,22 +1,29 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import Exchanges from './common/message-broker/strategies/rabbitmq/constants/exchanges';
-import Queues from './common/message-broker/strategies/rabbitmq/constants/queues';
-import MessageBrokerInterface from './common/message-broker/messageBroker.interface';
+import { RabbitmqService } from '@common/rabbitmq';
 
 @Injectable()
 export class AppService {
+  /**
+   *
+   * @param cacheManager
+   * @param rabbitmqService
+   */
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @Inject('MessageBroker') private messageBroker: MessageBrokerInterface,
+    @Inject(RabbitmqService) private rabbitmqService: RabbitmqService,
   ) {}
 
+  /**
+   *
+   */
   async getHello(): Promise<any> {
-    await this.messageBroker.publish(
-      Exchanges.processing.name,
-      Queues.requests.bindingKey,
+    await this.rabbitmqService.publish(
+      'processing',
+      'request',
       'salam be rooye mahet ' + Date.now(),
     );
+
     const salam = Date.now();
     if (!salam) {
       await this.cacheManager.set('key', 'fuck this world');
