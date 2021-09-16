@@ -2,26 +2,26 @@ version: '3.3'
 
 services:
 
-  nestjs_boilerplate_api:
-    container_name: nestjs_boilerplate_api
-    image: nestjs_boilerplate:latest
-#    build:
-#      context: .
-    ports:
-      - "4000:4000"
-    networks:
-      - nestjs_boilerplate
-    depends_on:
-      - nestjs_boilerplate_redis
-      - nestjs_boilerplate_mongodb
-    environment:
-      - SERVICE_URL=http://localhost:4000
-      - SERVICE_PORT=4000
-      - ENVIRONMENT=DEVELOPMENT
-      - SERVICE_NAME=nestjs-boilerplate
-      - DEFAULT_PAGINATION_LIMIT=10
-    logging:
-      driver: json-file
+#  nestjs_boilerplate_api:
+#    container_name: nestjs_boilerplate_api
+#    image: nestjs_boilerplate:latest
+##    build:
+##      context: .
+#    ports:
+#      - "4000:4000"
+#    networks:
+#      - nestjs_boilerplate
+#    depends_on:
+#      - nestjs_boilerplate_redis
+#      - nestjs_boilerplate_mongodb
+#    environment:
+#      - SERVICE_URL=http://localhost:4000
+#      - SERVICE_PORT=4000
+#      - ENVIRONMENT=DEVELOPMENT
+#      - SERVICE_NAME=nestjs-boilerplate
+#      - DEFAULT_PAGINATION_LIMIT=10
+#    logging:
+#      driver: json-file
 
   nestjs_boilerplate_mongodb:
     image: mongo:latest
