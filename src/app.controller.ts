@@ -2,7 +2,6 @@ import {
   CacheInterceptor,
   Controller,
   Get,
-  // Inject,
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
