@@ -12,6 +12,8 @@ import { Cat, CatSchema } from './cat.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CatsService } from './cats.service';
 import { ValidationModule } from './samples/validation/validation.module';
+import { RedisModule } from './samples/redis/redis.module';
+import { PostgresModule } from './samples/postgres/postgres.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { ValidationModule } from './samples/validation/validation.module';
     DatabaseModule.register(['redis', 'postgres', 'mongodb']),
     // Samples
     ValidationModule,
+    RedisModule,
+    PostgresModule,
   ],
   controllers: [AppController],
   providers: [AppService, CatsService],

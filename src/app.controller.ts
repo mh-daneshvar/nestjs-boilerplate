@@ -14,11 +14,13 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
+import { CatsService } from './cats.service';
 
 @Controller()
 export class AppController {
   constructor(
-    private readonly appService: AppService, // @Inject('MATH_SERVICE') private readonly client: ClientProxy,
+    private readonly appService: AppService,
+    private readonly catsService: CatsService,
   ) {}
 
   @Get()
@@ -27,6 +29,15 @@ export class AppController {
     return {
       data: {
         hello: await this.appService.getHello(),
+      },
+    };
+  }
+
+  @Get('/cats')
+  async getCats(): Promise<ControllerResponse> {
+    return {
+      data: {
+        hello: await this.catsService.findAll(),
       },
     };
   }
