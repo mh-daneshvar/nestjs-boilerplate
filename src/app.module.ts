@@ -14,6 +14,7 @@ import { CatsService } from './cats.service';
 import { ValidationModule } from './samples/validation/validation.module';
 import { RedisModule } from './samples/redis/redis.module';
 import { PostgresModule } from './samples/postgres/postgres.module';
+import { MongoModule } from './samples/mongo/mongo.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PostgresModule } from './samples/postgres/postgres.module';
     ValidationModule,
     RedisModule,
     PostgresModule,
+    MongoModule,
   ],
   controllers: [AppController],
   providers: [AppService, CatsService],
