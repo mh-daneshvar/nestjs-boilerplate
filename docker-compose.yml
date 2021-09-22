@@ -2,27 +2,33 @@ version: '3.3'
 
 services:
 
-#  nestjs_boilerplate_api:
-#    container_name: nestjs_boilerplate_api
-#    image: nestjs_boilerplate:latest
-##    build:
-##      context: .
-#    ports:
-#      - "4000:4000"
-#    networks:
-#      - nestjs_boilerplate
-#    depends_on:
-#      - nestjs_boilerplate_redis
-#      - nestjs_boilerplate_mongodb
-#    environment:
-#      - SERVICE_URL=http://localhost:4000
-#      - SERVICE_PORT=4000
-#      - ENVIRONMENT=DEVELOPMENT
-#      - SERVICE_NAME=nestjs-boilerplate
-#      - DEFAULT_PAGINATION_LIMIT=10
-#    logging:
-#      driver: json-file
+  # ---------------------------------------------
+  # Service
+  # ---------------------------------------------
+  #  nestjs_boilerplate_api:
+  #    container_name: nestjs_boilerplate_api
+  #    image: nestjs_boilerplate:latest
+  ##    build:
+  ##      context: .
+  #    ports:
+  #      - "4000:4000"
+  #    networks:
+  #      - nestjs_boilerplate
+  #    depends_on:
+  #      - nestjs_boilerplate_redis
+  #      - nestjs_boilerplate_mongodb
+  #    environment:
+  #      - SERVICE_URL=http://localhost:4000
+  #      - SERVICE_PORT=4000
+  #      - ENVIRONMENT=DEVELOPMENT
+  #      - SERVICE_NAME=nestjs-boilerplate
+  #      - DEFAULT_PAGINATION_LIMIT=10
+  #    logging:
+  #      driver: json-file
 
+  # ---------------------------------------------
+  # MongoDB
+  # ---------------------------------------------
   nestjs_boilerplate_mongodb:
     image: mongo:latest
     container_name: nestjs_boilerplate_mongodb
@@ -33,6 +39,9 @@ services:
     networks:
       - nestjs_boilerplate
 
+  # ---------------------------------------------
+  # Redis
+  # ---------------------------------------------
   nestjs_boilerplate_redis:
     image: "redis:alpine"
     container_name: nestjs_boilerplate_redis
@@ -42,6 +51,9 @@ services:
     networks:
       - nestjs_boilerplate
 
+  # ---------------------------------------------
+  # RabbitMQ
+  # ---------------------------------------------
   nestjs_boilerplate_rabbitmq:
     image: rabbitmq:3.8.2-management-alpine
     container_name: nestjs_boilerplate_rabbitmq
@@ -67,6 +79,9 @@ services:
     # NOTE: if management console does not work, run this command:
     # docker exec nestjs_boilerplate_rabbitmq rabbitmq-plugins enable rabbitmq_management
 
+  # ---------------------------------------------
+  # Postgres
+  # ---------------------------------------------
   nestjs_boilerplate_postgres:
     image: postgres:11.5
     container_name: nestjs_boilerplate_postgres

@@ -12,12 +12,12 @@ export class AppService {
   ) {}
 
   async getHello(): Promise<any> {
-    await this.messageBroker.publish(
+    const salam = Date.now();
+    this.messageBroker.publish(
       Exchanges.processing.name,
       Queues.requests.bindingKey,
-      'salam be rooye mahet ' + Date.now(),
+      { key: 'salam be rooye mahet ' + salam },
     );
-    const salam = Date.now();
     if (!salam) {
       await this.cacheManager.set('key', 'fuck this world');
       return 'Hello World!';

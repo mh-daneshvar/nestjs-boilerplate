@@ -42,6 +42,13 @@ class AppConfig extends ConfigService {
   /**
    *
    */
+  public getMongoConfig(): string {
+    return this.getValue('MONGODB_HOST');
+  }
+
+  /**
+   *
+   */
   public getTypeOrmConfig(): any {
     const config: any = {
       type: 'postgres',
