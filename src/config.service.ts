@@ -1,10 +1,11 @@
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
-import { InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
+@Injectable()
 class AppConfig extends ConfigService {
   /**
    *
@@ -36,6 +37,13 @@ class AppConfig extends ConfigService {
   public ensureValues(keys: string[]): AppConfig {
     keys.forEach((k) => this.getValue(k, true));
     return this;
+  }
+
+  /**
+   *
+   */
+  public getMongoConfig(): string {
+    return this.getValue('MONGODB_HOST');
   }
 
   /**
