@@ -6,22 +6,10 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ControllerResponse } from './common/response-decorator/responses.interface';
-import {
-  // ClientProxy,
-  Ctx,
-  EventPattern,
-  MessagePattern,
-  Payload,
-  RmqContext,
-} from '@nestjs/microservices';
-import { CatsService } from './cats.service';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly catsService: CatsService,
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   @UseInterceptors(CacheInterceptor)
@@ -31,25 +19,5 @@ export class AppController {
         hello: await this.appService.getHello(),
       },
     };
-  }
-
-  @Get('/cats')
-  async getCats(): Promise<ControllerResponse> {
-    return {
-      data: {
-        hello: await this.catsService.findAll(),
-      },
-    };
-  }
-
-  @MessagePattern('hello')
-  @EventPattern('hello')
-  async something(@Payload() data: number[], @Ctx() context: RmqContext) {
-    // eslint-disable-next-line no-console
-    console.log(`Pattern: ${context.getPattern()}`);
-    // eslint-disable-next-line no-console
-    console.log(`Payload: ${data}`);
-    // eslint-disable-next-line no-console
-    console.log('------------------------>');
   }
 }

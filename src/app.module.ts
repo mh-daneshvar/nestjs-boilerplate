@@ -6,11 +6,6 @@ import { MessageBrokerModule } from './common/message-broker/messageBroker.modul
 import { ExceptionModule } from './common/exception/exception.module';
 import { ResponseDecoratorModule } from './common/response-decorator/responseDecorator.module';
 import { DatabaseModule } from './common/database/database.module';
-import { Article } from './article.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cat, CatSchema } from './cat.schema';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CatsService } from './cats.service';
 import { ValidationModule } from './samples/validation/validation.module';
 import { RedisModule } from './samples/redis/redis.module';
 import { PostgresModule } from './samples/postgres/postgres.module';
@@ -18,8 +13,6 @@ import { MongoModule } from './samples/mongo/mongo.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Article]),
-    MongooseModule.forFeature([{ name: Cat.name, schema: CatSchema }]),
     MessageBrokerModule,
     ExceptionModule.register(),
     ResponseDecoratorModule.register(),
@@ -33,6 +26,6 @@ import { MongoModule } from './samples/mongo/mongo.module';
     MongoModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CatsService],
+  providers: [AppService],
 })
 export class AppModule {}
