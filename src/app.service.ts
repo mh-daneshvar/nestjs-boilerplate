@@ -12,9 +12,13 @@ export class AppService {
   async getHello(): Promise<any> {
     const salam = Date.now();
 
-    this.messageBroker.publish('boilerplate.user.add.v1', {
+    this.messageBroker.publish('user.add', '1', {
       key: 'salam be rooye mahet ' + salam,
     });
+
+    // this.messageBroker.publish('user.update', '1', {
+    //   key: 'salam be rooye fucket ' + salam,
+    // });
 
     if (!salam) {
       await this.cacheManager.set('key', 'fuck this world');
