@@ -1,6 +1,6 @@
 const Exchanges = [
   {
-    name: 'sigma-exchange',
+    name: 'nestjs-boilerplate-exchange',
     type: 'topic',
     durable: true,
   },

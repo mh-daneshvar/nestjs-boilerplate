@@ -22,7 +22,7 @@ const Queues = {
     {
       event: 'user.add',
       version: '1',
-      exchangeName: 'sigma-exchange',
+      exchangeName: 'nestjs-boilerplate-exchange',
       configs: {
         durable: true,
         noAck: true,
@@ -34,7 +34,7 @@ const Queues = {
     {
       event: 'user.update',
       version: '1',
-      exchangeName: 'sigma-exchange',
+      exchangeName: 'nestjs-boilerplate-exchange',
       configs: {
         durable: true,
         noAck: true,
