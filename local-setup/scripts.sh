@@ -6,6 +6,7 @@
 
 serviceName=$(grep SERVICE_NAME .env | xargs)
 IFS='=' read -ra serviceName <<< "$serviceName"
+# shellcheck disable=SC2178
 serviceName=${serviceName[1]}
 
 # --------------------------------------------
@@ -19,11 +20,15 @@ function setupDockerCompose() {
 
 # Start all containers
 function startAllContainers() {
+    # shellcheck disable=SC2128
+    # shellcheck disable=SC2046
     docker start $(docker ps -aq --filter "name=${serviceName}")
 }
 
 # Stop all containers
 function stopAllContainers() {
+    # shellcheck disable=SC2128
+    # shellcheck disable=SC2046
     docker stop $(docker ps -aq --filter "name=${serviceName}")
 }
 
