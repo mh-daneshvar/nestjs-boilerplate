@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ControllerResponse } from './common/response-decorator/responses.interface';
+import { configService } from './config.service';
 
 @Controller('/')
 export class AppController {
@@ -17,6 +18,17 @@ export class AppController {
     return {
       data: {
         hello: await this.appService.getHello(),
+      },
+    };
+  }
+
+  @Get('/health-check')
+  public async healthCheck(): Promise<ControllerResponse> {
+    const serviceName = configService.get<string>('SERVICE_NAME');
+    return {
+      message: `${serviceName} is healthy`,
+      data: {
+        status: 'ok',
       },
     };
   }

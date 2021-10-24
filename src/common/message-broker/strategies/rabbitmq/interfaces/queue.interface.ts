@@ -1,10 +1,20 @@
-export default interface QueueInterface {
+export interface ListeningQueueInterface {
+  service: string;
+  event: string;
+  version: string;
   exchangeName: string;
-  name: string;
-  bindingKey: string;
-  durable: boolean;
-  noAck: boolean;
-  exclusive: boolean;
-  auto_delete: boolean;
   handler: (message: any) => any;
+}
+
+export interface PublishingQueueInterface {
+  event: string;
+  version: string;
+  exchangeName: string;
+  configs: {
+    durable: boolean;
+    noAck: boolean;
+    exclusive: boolean;
+    auto_delete: boolean;
+    persistent: boolean;
+  };
 }

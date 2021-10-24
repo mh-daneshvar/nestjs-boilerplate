@@ -1,18 +1,23 @@
 import * as amqplib from 'amqplib';
-import Exchanges from './constants/exchanges';
-import Queues from './constants/queues';
+import Exchanges from './../../../../configs/message-broker/rabbitmq/exchanges';
+import Queues from './../../../../configs/message-broker/rabbitmq/queues';
 import { ConfigService } from '@nestjs/config';
 import MessageBrokerInterface from '../../MessageBroker.interface';
-import QueueInterface from './interfaces/queue.interface';
 import ExchangeInterface from './interfaces/exchange.interface';
+import {
+  ListeningQueueInterface,
+  PublishingQueueInterface,
+} from './interfaces/queue.interface';
 
 export default class RabbitmqService implements MessageBrokerInterface {
   private connection: amqplib.Connection;
 
   private readonly configs: {
+    serviceName: string;
     rabbitAddress: string;
     exchanges: ExchangeInterface[];
-    queues: QueueInterface[];
+    listeningQueues: ListeningQueueInterface[];
+    publishingQueues: PublishingQueueInterface[];
   };
 
   /**
@@ -25,11 +30,13 @@ export default class RabbitmqService implements MessageBrokerInterface {
    */
   constructor(configService: ConfigService) {
     this.configs = {
+      serviceName: configService.get<string>('SERVICE_NAME'),
       rabbitAddress: configService.get<string>('RABBITMQ_SERVER_ADDRESS'),
-      exchanges: Object.getOwnPropertyNames(Exchanges).map(
-        (exchange) => Exchanges[exchange],
+      exchanges: Exchanges.filter((exchange) => exchange.name),
+      listeningQueues: Queues.listening.filter((queue) => queue && queue.event),
+      publishingQueues: Queues.publishing.filter(
+        (queue) => queue && queue.event,
       ),
-      queues: Object.getOwnPropertyNames(Queues).map((queue) => Queues[queue]),
     };
   }
 
@@ -52,32 +59,44 @@ export default class RabbitmqService implements MessageBrokerInterface {
       });
     }
 
-    // 4. Setup queues
-    for (const queueInfo of this.configs.queues) {
-      const queueCompleteName = `${queueInfo.exchangeName}.${queueInfo.name}`;
+    // 4. Setup listeners
+    for (const queueInfo of this.configs.listeningQueues) {
+      const { handler, exchangeName } = queueInfo;
+
+      const bindingKey = this.getBindingKey(queueInfo);
+      const listenerQueueName = `${this.configs.serviceName}-on-${bindingKey}`;
+
       // Setup the queue
-      await channel.assertQueue(queueCompleteName, {
-        durable: queueInfo.durable,
-      });
+      await channel.assertQueue(listenerQueueName);
+
       // Bind the queue to the given exchange
-      await channel.bindQueue(
-        queueCompleteName,
-        queueInfo.exchangeName,
-        queueInfo.bindingKey,
-      );
+      await channel.bindQueue(listenerQueueName, exchangeName, bindingKey);
+
+      console.info('\n');
+      console.info('----------->');
+      console.info(bindingKey);
+      console.info('----------->');
+
       // Subscribe on the queue and register the handler
-      await channel.consume(
-        queueCompleteName,
-        async function (message) {
-          try {
-            await queueInfo.handler(message);
-            channel.ack(message);
-          } catch (e) {}
-        },
-        {
-          noAck: queueInfo.noAck,
-        },
-      );
+      await channel.consume(listenerQueueName, async function (message) {
+        try {
+          await handler(message);
+          channel.ack(message);
+        } catch (e) {}
+      });
+    }
+
+    // 5. Setup publishers
+    for (const queueInfo of this.configs.publishingQueues) {
+      const { event, version, exchangeName } = queueInfo;
+
+      const routingKey = this.getRoutingKey(event, version);
+
+      // Setup the queue
+      await channel.assertQueue(routingKey);
+
+      // Bind the queue to the given exchange
+      await channel.bindQueue(routingKey, exchangeName, routingKey);
     }
 
     return this;
@@ -86,27 +105,64 @@ export default class RabbitmqService implements MessageBrokerInterface {
   /**
    * Use this method for publishing new message in the given queue
    *
-   * @param exchangeName
-   * @param routingKey
+   * @param event
+   * @param version
    * @param messageContent
+   * @param exchangeName
    */
   public async publish(
-    exchangeName: string,
-    routingKey: string,
-    messageContent: string,
+    event: string,
+    version: string,
+    messageContent: Record<string, unknown>,
+    exchangeName?: string,
   ) {
     const channel = await this.connection.createChannel();
-    await channel.assertQueue('processing.requests', {
-      durable: true,
+
+    const publishingQueues = this.configs.publishingQueues.filter((queue) => {
+      if (exchangeName && queue.event === event && queue.version === version) {
+        return true;
+      } else if (queue.event === event && queue.version === version) {
+        return true;
+      }
     });
-    channel.sendToQueue(
-      'processing.requests',
-      Buffer.from(messageContent.toString()),
-      {
-        contentType: 'application/json',
-        persistent: true,
-      },
-    );
-    // await channel.close();
+
+    for (const publishingQueue of publishingQueues) {
+      const routingKey = this.getRoutingKey(event, version);
+      const persistent = publishingQueue.configs.persistent;
+      const exchangeName = publishingQueue.exchangeName;
+
+      channel.publish(
+        exchangeName,
+        routingKey,
+        Buffer.from(JSON.stringify(messageContent)),
+        {
+          contentType: 'application/json',
+          persistent,
+        },
+      );
+      await channel.close();
+    }
+  }
+
+  /**
+   * Generate routing-key based on the given parameters
+   *
+   * @param event
+   * @param version
+   * @private
+   */
+  private getRoutingKey(event: string, version: string): string {
+    return `${this.configs.serviceName}.${event}.v${version}`;
+  }
+
+  /**
+   * Generate binding-key based on the given listening-queue-info
+   *
+   * @param queueInfo
+   * @private
+   */
+  private getBindingKey(queueInfo: ListeningQueueInterface): string {
+    const { service, event, version } = queueInfo;
+    return `${service}.${event}.v${version}`;
   }
 }

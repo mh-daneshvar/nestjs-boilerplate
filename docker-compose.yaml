@@ -1,0 +1,111 @@
+version: '3.3'
+
+services:
+
+  # ---------------------------------------------
+  # MongoDB
+  # ---------------------------------------------
+  nestjs_boilerplate_mongodb:
+    build:
+      context: ./local-setup/docker-files/mongodb
+    container_name: ${SERVICE_NAME}_mongodb
+    ports:
+      - ${MONGODB_PORT}:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - nestjs_boilerplate
+
+  # ---------------------------------------------
+  # Redis
+  # ---------------------------------------------
+  nestjs_boilerplate_redis:
+    build:
+      context: ./local-setup/docker-files/redis
+    container_name: ${SERVICE_NAME}_redis
+    command: redis-server --appendonly yes --stop-writes-on-bgsave-error no
+    ports:
+      - ${REDIS_PORT}:6379
+    networks:
+      - nestjs_boilerplate
+
+  # ---------------------------------------------
+  # RabbitMQ
+  # ---------------------------------------------
+  nestjs_boilerplate_rabbitmq:
+    build:
+      context: .
+      dockerfile: ./local-setup/docker-files/rabbitmq/Dockerfile
+    container_name: ${SERVICE_NAME}_rabbitmq
+    restart: always
+    ports:
+      - 5671-5672:5671-5672
+      - 15672:15672
+      - 25672:25672
+    networks:
+      - nestjs_boilerplate
+    volumes:
+      - ./local-setup/.docker/rabbitmq/etc/:/etc/rabbitmq/
+      - ./local-setup/.docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./local-setup/.docker/rabbitmq/logs/:/var/log/rabbitmq/
+      - ./local-setup/docker-files/rabbitmq/plugins/:/jafar/
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_SERVER_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_SERVER_PASS}
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '5672']
+      interval: 20s
+      timeout: 5s
+      retries: 12
+    # NOTE: if management console does not work, run this command:
+    # docker exec nestjs_boilerplate_rabbitmq rabbitmq-plugins enable rabbitmq_management
+
+  # ---------------------------------------------
+  # Postgres
+  # ---------------------------------------------
+  nestjs_boilerplate_postgres:
+    image: postgres:11.5
+    container_name: ${SERVICE_NAME}_postgres
+    env_file:
+      - .env
+    ports:
+      - ${DATABASE_PORT}:5432
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB}
+    volumes:
+      - ./.docker/postgres:/var/lob/postgresql/data
+    networks:
+      - nestjs_boilerplate
+
+networks:
+  nestjs_boilerplate:
+
+volumes:
+  mongodb_data_container:
+
+
+# ---------------------------------------------
+# Service
+# ---------------------------------------------
+#  nestjs_boilerplate_api:
+#    container_name: nestjs_boilerplate_api
+#    image: nestjs_boilerplate:latest
+##    build:
+##      context: .
+#    ports:
+#      - "4000:4000"
+#    networks:
+#      - nestjs_boilerplate
+#    depends_on:
+#      - nestjs_boilerplate_redis
+#      - nestjs_boilerplate_mongodb
+#    environment:
+#      - SERVICE_URL=http://localhost:4000
+#      - SERVICE_PORT=4000
+#      - ENVIRONMENT=DEVELOPMENT
+#      - SERVICE_NAME=nestjs-boilerplate
+#      - DEFAULT_PAGINATION_LIMIT=10
+#    logging:
+#      driver: json-file
